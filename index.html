@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TuneMaster ID - Kalkulator Tuning</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #0a0a0a; color: #e0e0e0; overflow-x: hidden; padding-bottom: 70px; }
+    
+    /* Header */
+    .header { background: #111; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: #fff; }
+    .logo-icon { background: #e53935; width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 16px; }
+    .logo span { color: #e53935; }
+    
+    .btn-top { background: #e53935; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    
+    /* Tabs */
+    .tabs { display: flex; overflow-x: auto; background: #151515; border-bottom: 1px solid #222; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { padding: 15px 20px; font-size: 13px; font-weight: 600; color: #888; white-space: nowrap; cursor: pointer; border-bottom: 2px solid transparent; }
+    .tab.active { color: #fff; border-bottom-color: #e53935; background: #1a1a1a; }
+
+    /* Container */
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+
+    /* Card Style */
+    .card { background: #141414; border: 1px solid #2a2a2a; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    .card-title { font-size: 14px; font-weight: 600; color: #aaa; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
+    
+    /* Input & Slider */
+    .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .input-row label { font-size: 14px; color: #ddd; }
+    .input-box { background: #000; border: 1px solid #333; color: #fff; padding: 8px 12px; border-radius: 8px; width: 100px; text-align: right; font-size: 16px; font-weight: 600; }
+    input[type=range] { width: 100%; accent-color: #e53935; margin-bottom: 15px; }
+    
+    .quick-btn { background: #1f1f1f; border: 1px solid #333; color: #aaa; padding: 6px 10px; border-radius: 6px; font-size: 11px; margin: 0 5px 5px 0; cursor: pointer; }
+    .quick-btn:hover { background: #333; color: #fff; }
+
+    /* Silinder Selection */
+    .cyl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .cyl-btn { background: #1f1f1f; border: 1px solid #333; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 13px; color: #aaa; }
+    .cyl-btn.active { background: rgba(229, 57, 53, 0.1); border-color: #e53935; color: #fff; }
+    .cyl-btn strong { display: block; font-size: 18px; margin-bottom: 5px; }
+
+    /* Hasil */
+    .result-card { background: linear-gradient(135deg, #1f1f1f, #141414); border: 1px solid #333; border-radius: 16px; padding: 25px; text-align: center; margin-bottom: 20px; }
+    .result-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .result-value { font-size: 50px; font-weight: 800; color: #fff; line-height: 1; }
+    .result-value span { font-size: 20px; color: #e53935; }
+    
+    .ratio-box { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 15px; margin-top: 20px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .ratio-title { font-size: 12px; color: #888; }
+    .ratio-val { font-size: 18px; font-weight: 800; color: #fff; }
+    
+    .engine-desc { background: #1a1a1a; padding: 15px; border-radius: 10px; margin-top: 10px; font-size: 13px; color: #aaa; line-height: 1.5; text-align: left; border-left: 3px solid #00bcd4; }
+    
+    .hitung-btn { background: #e53935; color: #fff; border: none; width: 100%; padding: 18px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; box-shadow: 0 4px 15px rgba(229,57,53,0.3); }
+
+    /* Modal / Bottom Sheet */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: flex-end; }
+    .modal-content { background: #111; width: 100%; max-width: 600px; height: 85%; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; border-top: 1px solid #333; position: relative; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: #111; padding-bottom: 10px; border-bottom: 1px solid #222; }
+    .close-btn { background: #222; border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+    
+    .term-item { margin-bottom: 20px; }
+    .term-title { color: #e53935; font-weight: 700; font-size: 15px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+    .term-badge { font-size: 10px; background: #333; padding: 2px 6px; border-radius: 4px; color: #aaa; }
+    .term-desc { font-size: 13px; color: #aaa; line-height: 1.5; }
+
+    .footer-nav { position: fixed; bottom: 0; width: 100%; background: #111; border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 10px 0; font-size: 11px; color: #888; z-index: 100; }
+    .footer-nav div { text-align: center; cursor: pointer; }
+    .footer-nav div.active { color: #e53935; }
+    
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #25D366; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 2000; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        <div class="logo-icon">⏱</div>
+        TuneMaster<span>ID</span>
+    </div>
+    <button class="btn-top" onclick="salinSpek()">🔗 Salin Spek</button>
+</div>
+
+<div class="tabs">
+    <div class="tab active">CC Silinder</div>
+    <div class="tab">Rasio Kompresi</div>
+    <div class="tab">Piston Speed</div>
+    <div class="tab">Venturi Karbu / TB</div>
+</div>
+
+<div class="container">
+    <!-- TAB 1: KALKULATOR CC -->
+    <div id="tab-cc">
+        <h2 style="font-size: 20px; margin-bottom: 5px; color:#fff;">🔥 Kalkulator Kapasitas Mesin (CC)</h2>
+        <p style="font-size: 13px; color: #888; margin-bottom: 20px;">Hitung kapasitas silinder berdasarkan diameter piston dan langkah.</p>
+
+        <div class="card">
+            <div class="card-title">
+                Parameter Silinder
+                <span style="color: #e53935; cursor: pointer; font-size: 12px;" onclick="resetSpek()">↺ Reset Spek</span>
+            </div>
+            
+            <div class="input-row">
+                <label>Diameter Piston (Bore)</label>
+                <input type="number" id="boreInput" class="input-box" value="57" step="0.1" oninput="updateCalc()"> 
+            </div>
+            <input type="range" id="boreRange" min="40" max="100" step="0.1" value="57" oninput="syncInput('bore', this.value)">
+            <div style="font-size: 11px; color: #666; margin-bottom: 20px;">Ukuran Umum:
+                <button class="quick-btn" onclick="syncInput('bore', 50)">50</button>
+                <button class="quick-btn" onclick="syncInput('bore', 52.4)">52.4</button>
+                <button class="quick-btn" onclick="syncInput('bore', 57)">57</button>
+                <button class="quick-btn" onclick="syncInput('bore', 62)">62</button>
+            </div>
+
+            <div class="input-row">
+                <label>Langkah Piston (Stroke)</label>
+                <input type="number" id="strokeInput" class="input-box" value="58.7" step="0.1" oninput="updateCalc()">
+            </div>
+            <input type="range" id="strokeRange" min="40" max="100" step="0.1" value="58.7" oninput="syncInput('stroke', this.value)">
+            <div style="font-size: 11px; color: #666; margin-bottom: 20px;">Stroke Standar:
+                <button class="quick-btn" onclick="syncInput('stroke', 50)">50.0 (King)</button>
+                <button class="quick-btn" onclick="syncInput('stroke', 55.1)">55.1 (BeAT)</button>
+                <button class="quick-btn" onclick="syncInput('stroke', 58.7)">58.7 (MX/R15)</button>
+            </div>
+
+            <label style="font-size: 14px; color: #ddd; display: block; margin-bottom: 10px;">Jumlah Silinder</label>
+            <div class="cyl-grid">
+                <div class="cyl-btn active" onclick="setCyl(1, this)"><strong>1</strong>Silinder (Single)</div>
+                <div class="cyl-btn" onclick="setCyl(2, this)"><strong>2</strong>Silinder (Twin)</div>
+                <div class="cyl-btn" onclick="setCyl(3, this)"><strong>3</strong>Silinder</div>
+                <div class="cyl-btn" onclick="setCyl(4, this)"><strong>4</strong>Silinder (Inline 4)</div>
+            </div>
+        </div>
+
+        <button class="hitung-btn" onclick="updateCalc()">⚡ Hitung Kapasitas Silinder</button>
+
+        <!-- Hasil -->
+        <div class="result-card" style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="result-label" style="margin:0;">Kapasitas Silinder Mesin</div>
+                <div style="font-size: 12px; color: #aaa;" id="kelasMesin">Kelas Sport / Matic 150-160cc</div>
+            </div>
+            <div class="result-value" id="hasilCC">149.79 <span>cc</span></div>
+            
+            <div class="ratio-box" style="margin-top: 25px; flex-direction: column; align-items: flex-start;">
+                <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;">
+                    <div class="ratio-title">⏱ RASIO BORE / STROKE:</div>
+                    <div class="ratio-val" id="hasilRasio">0.971 : 1</div>
+                </div>
+                <div style="font-size: 15px; font-weight: 700; color: #00bcd4; margin-bottom: 5px;" id="statusMesin">Square Engine</div>
+                <div class="engine-desc" id="descMesin">
+                    Diameter Bore dan Langkah Stroke seimbang (mendekati 1:1). Karakter tenaga merata dan linear di seluruh rentang putaran.
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Silinder Sederhana -->
+        <div class="card">
+            <div class="card-title">Visual Proporsi Silinder: <span style="color:#aaa; font-weight:normal; text-transform:none; font-size:12px;">Luas Piston: <span id="luasPiston">2551.76 mm²</span></span></div>
+            <div style="height: 150px; background: #0a0a0a; border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative;">
+                <!-- Box Silinder -->
+                <div id="visualBox" style="width: 100px; height: 100px; border: 2px solid #e53935; border-radius: 4px; position: relative; display: flex; justify-content: center; align-items: flex-end; background: rgba(229,57,53,0.1);">
+                    <div style="position: absolute; top: -20px; font-size: 10px; color: #e53935; background: #111; padding: 0 5px;">Bore: <span id="visBore">57</span>mm</div>
+                    <div style="position: absolute; right: -45px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #aaa;">58.7mm</div>
+                    <!-- Piston -->
+                    <div style="width: 100%; height: 15px; background: #555; border-top-left-radius: 4px; border-top-right-radius: 4px; border: 1px solid #777;">
+                        <div style="text-align: center; font-size: 9px; color: #aaa; margin-top: 2px;">Piston</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="footer-nav">
+    <div>TuneMaster ID</div>
+    <div style="color: #e53935;">Tentang Pembuat<br>(Kelompok 8)</div>
+    <div onclick="bukaKamus()">Kamus Istilah</div>
+    <div>Preset Motor</div>
+</div>
+
+<!-- MODAL KAMUS ISTILAH -->
+<div class="modal-overlay" id="modalKamus">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div>
+                <h3 style="color: #fff; font-size: 18px; margin-bottom: 3px;">Kamus Istilah Tuning Mesin</h3>
+                <p style="font-size: 12px; color: #888;">Panduan dasar teknik mesin motor untuk mekanik & penghobi otomotif</p>
+            </div>
+            <button class="close-btn" onclick="tutupKamus()">✕</button>
+        </div>
+
+        <div class="term-item">
+            <div class="term-title">Bore & Stroke <span class="term-badge">KAPASITAS</span></div>
+            <div class="term-desc">Bore adalah diameter dalam silinder tempat piston bergerak. Stroke (langkah) adalah jarak tempuh piston dari Titik Mati Bawah (TMB) ke Titik Mati Atas (TMA).</div>
+        </div>
+        <div class="term-item">
+            <div class="term-title">Overbore vs Overstroke vs Square <span class="term-badge">KARAKTER</span></div>
+            <div class="term-desc">Overbore (Bore > Stroke): nafas panjang di putaran atas. Overstroke (Stroke > Bore): torsi melimpah di putaran bawah-tengah. Square (Bore = Stroke): tenaga merata seimbang.</div>
+        </div>
+        <div class="term-item">
+            <div class="term-title">Rasio Kompresi Statis (CR) <span class="term-badge">KOMPRESI</span></div>
+            <div class="term-desc">Perbandingan antara total volume silinder saat piston di TMB dengan volume ruang bakar tersisa saat piston di TMA. Semakin tinggi kompresi, semakin efisien dan bertenaga pembakaran, namun butuh bahan bakar beroktan lebih tinggi agar tidak knocking.</div>
+        </div>
+        <div class="term-item">
+            <div class="term-title">Buret Head & Mendem Piston <span class="term-badge">TUNING HEAD</span></div>
+            <div class="term-desc">Metode ukur buret cairan (oli/alkohol + pewarna) untuk mengetahui cc kubah head secara riil. Mendem piston (deck clearance) adalah celah antara bibir blok silinder dengan tepi piston saat posisi TMA.</div>
+        </div>
+        <div class="term-item">
+            <div class="term-title">Mean Piston Speed <span class="term-badge">DURABILITAS</span></div>
+            <div class="term-desc">Kecepatan rata-rata gerak bolak-balik piston dalam meter per detik (m/s). Batas aman harian piston standar adalah 21 m/s. Di atas 21-24 m/s wajib memakai piston tempa (forged) dan stang seher kompetisi karena beban inersia sangat tinggi.</div>
+        </div>
+        <div class="term-item">
+            <div class="term-title">Ukuran Venturi Karburator / TB <span class="term-badge">PASOKAN BAHAN BAKAR</span></div>
+            <div class="term-desc">Diameter lubang tersempit pada intake karburator. Jika terlalu besar, kecepatan udara (gas velocity) di putaran bawah drop sehingga mesin lemot. Jika terlalu kecil, nafas mesin di putaran atas tersumbat.</div>
+        </div>
+
+        <button class="hitung-btn" style="background:#2a2a2a; color:#fff; margin-top: 10px;" onclick="tutupKamus()">Tutup Panduan</button>
+    </div>
+</div>
+
+<!-- TOAST NOTIF -->
+<div class="toast" id="toast">Teks berhasil disalin!</div>
+
+<script>
+    let cylinderCount = 1;
+    let currentBore = 57;
+    let currentStroke = 58.7;
+    let currentCC = 149.79;
+
+    function syncInput(type, val) {
+        val = parseFloat(val);
+        if(type === 'bore') {
+            document.getElementById('boreInput').value = val;
+            document.getElementById('boreRange').value = val;
+        } else {
+            document.getElementById('strokeInput').value = val;
+            document.getElementById('strokeRange').value = val;
+        }
+        updateCalc();
+    }
+
+    function setCyl(num, el) {
+        cylinderCount = num;
+        document.querySelectorAll('.cyl-btn').forEach(btn => btn.classList.remove('active'));
+        el.classList.add('active');
+        updateCalc();
+    }
+
+    function updateCalc() {
+        let bore = parseFloat(document.getElementById('boreInput').value) || 0;
+        let stroke = parseFloat(document.getElementById('strokeInput').value) || 0;
+        
+        if(bore > 0 && stroke > 0) {
+            currentBore = bore;
+            currentStroke = stroke;
+            
+            let r = bore / 2;
+            let ccOneCyl = (Math.PI * r * r * stroke) / 1000;
+            currentCC = ccOneCyl * cylinderCount;
+            
+            // Tampilkan CC
+            document.getElementById('hasilCC').innerHTML = currentCC.toFixed(2) + ' <span>cc</span>';
+            
+            // Kelas Mesin
+            let kelas = "";
+            if (currentCC <= 115) kelas = "Kelas Matic 110cc";
+            else if (currentCC <= 130) kelas = "Kelas Matic 125cc";
+            else if (currentCC <= 160) kelas = "Kelas Sport / Matic 150-160cc";
+            else if (currentCC <= 250) kelas = "Kelas Sport 200-250cc";
+            else kelas = "Kelas Motor Besar (>250cc)";
+            document.getElementById('kelasMesin').innerText = kelas;
+            
+            // Rasio & Karakter
+            let rasio = bore / stroke;
+            document.getElementById('hasilRasio').innerText = rasio.toFixed(3) + " : 1";
+            
+            let status = "", desc = "", color = "";
+            if (rasio > 1.05) {
+                status = "Oversquare (Tenaga Atas)";
+                desc = "Diameter piston lebih besar dari langkah. Karakter tenaga condong ke putaran atas (high RPM). Cocok untuk trek lurus.";
+                color = "#ff9800";
+            } else if (rasio < 0.95) {
+                status = "Undersquare (Tenaga Bawah)";
+                desc = "Langkah piston lebih panjang dari diameter. Karakter tenaga condong ke putaran bawah (low-mid RPM). Cocok untuk tanjakan dan stop-and-go.";
+                color = "#2196F3";
+            } else {
+                status = "Square Engine (Tenaga Merata)";
+                desc = "Diameter Bore dan Langkah Stroke seimbang (mendekati 1:1). Karakter tenaga merata dan linear di seluruh rentang putaran.";
+                color = "#00bcd4";
+            }
+            
+            let statusEl = document.getElementById('statusMesin');
+            statusEl.innerText = status;
+            statusEl.style.color = color;
+            document.getElementById('descMesin').innerText = desc;
+            document.querySelector('.engine-desc').style.borderLeftColor = color;
+            
+            // Luas Piston & Visual
+            let luas = Math.PI * r * r;
+            document.getElementById('luasPiston').innerText = luas.toFixed(2) + " mm²";
+            document.getElementById('visBore').innerText = bore;
+            
+            // Sesuaikan ukuran kotak visual (proporsional)
+            let vBox = document.getElementById('visualBox');
+            let scale = 1.5;
+            vBox.style.width = (bore * scale) + 'px';
+            vBox.style.height = (stroke * scale) + 'px';
+        }
+    }
+
+    function resetSpek() {
+        syncInput('bore', 57);
+        syncInput('stroke', 58.7);
+        setCyl(1, document.querySelectorAll('.cyl-btn')[0]);
+    }
+
+    function salinSpek() {
+        let teks = `*TuneMaster ID - Spesifikasi Mesin*\n\n` +
+                    `• Kapasitas: *${currentCC.toFixed(2)} cc*\n` +
+                    `• Bore: ${currentBore} mm\n` +
+                    `• Stroke: ${currentStroke} mm\n` +
+                    `• Jumlah Silinder: ${cylinderCount}\n` +
+                    `• Rasio B/S: ${document.getElementById('hasilRasio').innerTe
